@@ -1,10 +1,9 @@
 # Alfresco MCP Server
 
-A minimal Model Context Protocol (MCP) server for Alfresco that provides a single tool to retrieve node properties via the Alfresco REST API. Built with FastMCP 2.0.
+A minimal Model Context Protocol (MCP) server for Alfresco providing tools via the Alfresco REST API
 
 ## Features
 
-- **Single Tool**: `get_node_properties` - Retrieve properties and metadata of any Alfresco node
 - **Ticket-based Authentication**: Uses Alfresco authentication tickets
 - **Multiple Transport Modes**: Supports stdio, SSE, and HTTP
 - **Docker Support**: Configurable container for all transport modes
