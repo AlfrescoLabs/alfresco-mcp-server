@@ -1,0 +1,11 @@
+services:
+  alfresco-mcp-server:
+    build:
+      context: .
+    environment:
+      TRANSPORT_MODE: ${TRANSPORT:-http}   # http | stdio | sse
+      PORT: ${MCP_PORT:-8003}
+      # ---- Alfresco connection (from .env) ----
+      ALFRESCO_HOST: ${ALFRESCO_URL}
+    ports:
+      - "${MCP_PORT:-8003}:${MCP_PORT:-8003}"

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "alfresco": {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:8003/mcp",
+      "env": {
+        "ALFRESCO_URL": "http://localhost:8080"
+      }
+    }
+  }
+}
