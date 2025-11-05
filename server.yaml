@@ -1,0 +1,74 @@
+version: 2
+name: alfresco-mcp-server
+displayName: Alfresco MCP Server
+description: A Model Context Protocol server for Alfresco providing tools to search, create, update, and manage content via the Alfresco REST API
+title: Alfresco MCP Server
+type: server
+category: content-management
+
+# Source repository (where the code lives)
+source: https://github.com/AlfrescoLabs/alfresco-mcp-server
+upstream: https://github.com/AlfrescoLabs/alfresco-mcp-server
+
+# Docker image configuration (your pre-built image)
+image: angelborroy/alfresco-mcp-server:latest
+
+# License information
+license: Apache License 2.0
+
+# Metadata
+metadata:
+  githubStars: 0
+  tags:
+    - alfresco
+    - content-management
+    - ecm
+    - document-management
+    - enterprise-content
+    - rest-api
+  owner: AlfrescoLabs
+  maintainer: angelborroy
+
+# Environment variables
+env:
+  - name: ALFRESCO_HOST
+    description: Base URL of your Alfresco instance (e.g., http://alfresco:8080 or http://host.docker.internal:8080)
+    required: true
+    default: "http://localhost:8080"
+  - name: TRANSPORT_MODE
+    description: Transport mode for MCP communication
+    required: false
+    default: "stdio"
+
+# Secrets (for sensitive authentication data)
+secrets:
+  - name: ALFRESCO_TICKET
+    description: |
+      Alfresco authentication ticket. Obtain via:
+      curl -X POST "http://your-alfresco:8080/alfresco/api/-default-/public/authentication/versions/1/tickets" \
+      -H "Content-Type: application/json" \
+      -d '{"userId":"admin","password":"admin"}'
+      
+      Use the 'id' field from the JSON response.
+    required: true
+
+# Command configuration (uses default from Dockerfile)
+command: []
+
+# Tools provided by this server
+toolsCount: 10
+
+# Additional metadata
+dateAdded: "2025-11-05T00:00:00Z"
+icon: "https://raw.githubusercontent.com/AlfrescoLabs/alfresco-mcp-server/main/icon.png"
+
+# Documentation
+readme: readme.md
+tools: tools.json
+
+# Network requirements note
+notes: |
+  Important: This server requires network access to your Alfresco instance.
+  - For Alfresco on host machine: Use http://host.docker.internal:8080
+  - For Alfresco in Docker: Use service name (e.g., http://alfresco:8080)
+  - Ensure Alfresco REST API is accessible from the container

@@ -20,7 +20,7 @@ COPY alfresco_mcp_server.py .
 
 # Defaults (can be overridden by compose/env)
 ENV ALFRESCO_HOST=http://localhost:8080
-ENV TRANSPORT_MODE=http
+ENV TRANSPORT_MODE=stdio
 ENV PORT=8000
 
 EXPOSE ${PORT:-8000}
