@@ -33,12 +33,21 @@ metadata:
 env:
   - name: ALFRESCO_HOST
     description: Base URL of your Alfresco instance (e.g., http://alfresco:8080 or http://host.docker.internal:8080)
-    required: true
-    default: "http://localhost:8080"
+    example: http://localhost:8080
+    value: '{{alfresco.alfresco_host}}'
   - name: TRANSPORT_MODE
     description: Transport mode for MCP communication
     required: false
     default: "stdio"
+
+# Parameters exposed to the MCP gateway for configuration
+parameters:
+  type: object
+  properties:
+    alfresco_host:
+      type: string
+  required:
+    - alfresco_host
 
 # Secrets (for sensitive authentication data)
 secrets:
