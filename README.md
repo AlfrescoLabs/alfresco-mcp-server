@@ -148,3 +148,34 @@ services:
 | `ALFRESCO_HOST` | Base URL of Alfresco instance | `http://localhost:8080` |
 | `TRANSPORT_MODE` | Transport mode (stdio/http/sse) | `stdio` |
 | `HTTP` | Port for HTTP/SSE modes | `8003` |
+
+## Publishing in Docker Hub
+
+### Create/use a builder
+
+```bash
+docker buildx create --name mcp-builder --use
+docker buildx inspect --bootstrap
+```
+
+### Build & push (multi-arch) with SBOM + provenance + OCI annotations
+
+```bash
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --pull \
+  --provenance=mode=max \
+  --sbom=true \
+  --annotation "index:org.opencontainers.image.source=https://github.com/angelborroy/alfresco-mcp-server" \
+  --annotation "index:org.opencontainers.image.description=Alfresco MCP Server" \
+  -t angelborroy/alfresco-mcp-server:1.0.0 \
+  -t angelborroy/alfresco-mcp-server:latest \
+  --metadata-file build-metadata.json \
+  --push .
+```  
+
+### Cleanup
+
+```bash
+docker buildx rm mcp-builder
+```

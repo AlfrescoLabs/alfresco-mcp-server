@@ -146,3 +146,4 @@ coverage.xml
 *.cover
 .coverage
 .coverage.*
+build-metadata.json
