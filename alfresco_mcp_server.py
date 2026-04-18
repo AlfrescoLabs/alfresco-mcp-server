@@ -317,22 +317,55 @@ async def download_document(
     
 @mcp.tool
 @require_ticket
-async def get_markdown_content(
+async def get_pdf_rendition(
     node_id: str,
     alf_ticket: str = ""
 ) -> str:
     """
-    Return the Markdown rendition of a node as plain text.
-    Uses ticket-based auth injected via query param and header.
+    Return the PDF rendition of a node as a base64-encoded string.
+    Follows the Alfresco rendition lifecycle:
+      1. GET  /renditions/pdf            — check if already CREATED (skip polling if yes)
+      2. POST /renditions {"id": "pdf"} — request creation if not ready (409 = already queued)
+      3. GET  /renditions/pdf            — poll until status == CREATED (30 s timeout)
+      4. GET  /renditions/pdf/content    — fetch binary, return as base64
+    The caller is responsible for decoding the PDF and extracting plain text.
     """
+    params = _default_params(ticket=alf_ticket)
+    status_url = f"{ALF_NODES}/{node_id}/renditions/pdf"
+    content_url = f"{ALF_NODES}/{node_id}/renditions/pdf/content"
     try:
-        url = f"{ALF_NODES}/{node_id}/renditions/markdown/content"
         async with _client() as client:
-            resp = await client.get(url, params=_default_params(ticket=alf_ticket))
+            # Step 1: check if rendition already exists (common after ACA document preview)
+            pre_check = await client.get(status_url, params=params)
+            already_created = (
+                pre_check.status_code == 200
+                and pre_check.json().get("entry", {}).get("status") == "CREATED"
+            )
+
+            if not already_created:
+                # Step 2: request rendition creation (idempotent — 409 means already queued)
+                create_url = f"{ALF_NODES}/{node_id}/renditions"
+                resp = await client.post(create_url, json={"id": "pdf"}, params=params)
+                if resp.status_code not in (202, 409):
+                    await _raise_for_status(resp)
+
+                # Step 3: poll until CREATED (up to 10 × 3 s = 30 s)
+                for _ in range(10):
+                    await asyncio.sleep(3)
+                    poll = await client.get(status_url, params=params)
+                    if poll.status_code == 200:
+                        entry = poll.json().get("entry", {})
+                        if entry.get("status") == "CREATED":
+                            break
+                else:
+                    return f"PDF rendition not ready after 30 s for `{node_id}`"
+
+            # Step 4: fetch PDF content and return as base64
+            resp = await client.get(content_url, params={**params, "attachment": "false"})
             await _raise_for_status(resp)
-            return resp.text
+            return base64.b64encode(resp.content).decode("utf-8")
     except Exception as e:
-        return f"Failed to retrieve Markdown for `{node_id}`: {str(e)}"
+        return f"Failed to retrieve PDF rendition for `{node_id}`: {str(e)}"
 
 @mcp.tool
 @require_ticket
